@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:state_management/custom_icon/custom_icons_icons.dart';
+import 'package:state_management/models/notes.dart';
+import 'package:state_management/screens/add_or_detail_screeen.dart';
+import '../providers/notes.dart';
 
 class NoteItem extends StatefulWidget {
   final String id;
-  final String title;
-  final String note;
-  final bool isPinned;
-  final Function(String id) toggleIsPinnedFn;
 
   NoteItem({
     @required this.id,
-    @required this.title,
-    @required this.note,
-    @required this.isPinned,
-    @required this.toggleIsPinnedFn,
   });
 
   @override
@@ -21,40 +17,54 @@ class NoteItem extends StatefulWidget {
 }
 
 class _NoteItemState extends State<NoteItem> {
-  bool _isPinned;
-
   @override
   Widget build(BuildContext context) {
-    _isPinned = widget.isPinned;
+    final notesProvider = Provider.of<Notes>(context, listen: false);
+    Note note = notesProvider.getNote(widget.id);
 
-    return GridTile(
-      header: Align(
-        alignment: Alignment.topRight,
-        child: IconButton(
-          onPressed: () {
-            widget.toggleIsPinnedFn(widget.id);
-          },
-          icon: Icon(
-            _isPinned ? CustomIcons.pin : CustomIcons.pin_outline,
+    return Dismissible(
+      key: Key(note.id),
+      onDismissed: (direction) {
+        notesProvider.deleteNote(note.id);
+      },
+      child: GestureDetector(
+        onTap: () => {
+          Navigator.of(context).pushNamed(
+            AddOrDetailScreen.routeName,
+            arguments: note.id,
+          )
+        },
+        child: GridTile(
+          header: Align(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              onPressed: () {
+                notesProvider.toggleIsPinned(note.id);
+              },
+              icon: Icon(
+                note.isPinned ? CustomIcons.pin : CustomIcons.pin_outline,
+              ),
+            ),
           ),
-        ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.grey[800],
-          border: Border.all(),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: EdgeInsets.all(8),
-        child: Text(widget.note),
-      ),
-      footer: ClipRRect(
-        borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
-        child: Container(
-          height: 50,
-          color: Colors.black,
-          child: Center(child: Text(widget.title)),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[800],
+              border: Border.all(),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: EdgeInsets.all(8),
+            child: Text(note.note),
+          ),
+          footer: ClipRRect(
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(12),
+                bottomRight: Radius.circular(12)),
+            child: Container(
+              height: 50,
+              color: Colors.black,
+              child: Center(child: Text(note.title)),
+            ),
+          ),
         ),
       ),
     );
