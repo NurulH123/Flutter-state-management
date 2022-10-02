@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:state_management/api/note_api.dart';
 import 'package:state_management/models/notes.dart';
 
 class Notes with ChangeNotifier {
@@ -36,7 +37,13 @@ class Notes with ChangeNotifier {
     ),
   ];
 
+  Future<void> getAndSetNotes() async {
+    _notes = await NoteApi().getAllNote();
+    notifyListeners();
+  }
+
   List<Note> get notes {
+    NoteApi().getAllNote();
     List<Note> tempListNote = _notes.where((note) => note.isPinned).toList();
     tempListNote.addAll(_notes.where((note) => !note.isPinned).toList());
 
@@ -60,7 +67,7 @@ class Notes with ChangeNotifier {
   Note getNote(String id) {
     return _notes.firstWhere((note) => note.id == id);
   }
-  
+
   void updateNotes(Note newNote) {
     int index = _notes.indexWhere((note) => note.id == newNote.id);
     _notes[index] = newNote;
