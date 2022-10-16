@@ -14,7 +14,8 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
   Note _note =
       Note(id: null, title: '', note: '', updatedAt: null, createdAt: null);
 
-  bool init = true;
+  bool _init = true;
+  bool _isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -38,7 +39,9 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
   void didChangeDependencies() {
     if (init) {
       String id = ModalRoute.of(context).settings.arguments as String;
-      _note = Provider.of<Notes>(context).getNote(id);
+      if (id != null) {
+        _note = Provider.of<Notes>(context).getNote(id);
+      }
       init = false;
     }
     super.didChangeDependencies();
@@ -101,11 +104,12 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
               ),
             ),
           ),
-          Positioned(
-            bottom: 10,
-            right: 10,
-            child: Text('Terakhir diubah ${_convertDate(_note.updatedAt)}'),
-          ),
+          if (_note.updatedAt != null)
+            Positioned(
+              bottom: 10,
+              right: 10,
+              child: Text('Terakhir diubah ${_convertDate(_note.updatedAt)}'),
+            ),
         ],
       ),
     );

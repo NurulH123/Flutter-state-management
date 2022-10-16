@@ -55,11 +55,16 @@ class Notes with ChangeNotifier {
 
     if (index >= 0) {
       _notes[index].isPinned = !_notes[index].isPinned;
+      _notes[index].copyWith(updatedAt: DateTime.now());
+      NoteApi()
+          .toggleIsPinned(id, _notes[index].isPinned, _notes[index].updatedAt);
       notifyListeners();
     }
   }
 
-  void addNote(Note note) {
+  Future<void> addNote(Note note) async {
+    String id = await NoteApi().postNote(note);
+    note = note.copyWith(id: id);
     _notes.add(note);
     notifyListeners();
   }
@@ -68,13 +73,15 @@ class Notes with ChangeNotifier {
     return _notes.firstWhere((note) => note.id == id);
   }
 
-  void updateNotes(Note newNote) {
+  void updateNotes(Note newNote) async {
+    await NoteApi().updateNote(newNote);
     int index = _notes.indexWhere((note) => note.id == newNote.id);
     _notes[index] = newNote;
     notifyListeners();
   }
 
   void deleteNote(String id) {
+    NoteApi().deleteNote(id);
     _notes.removeWhere((note) => note.id == id);
     notifyListeners();
   }
