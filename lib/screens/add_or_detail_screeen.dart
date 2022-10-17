@@ -27,12 +27,17 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
     setState(() {
       _isLoading = true;
     });
-    // Jika id notenya null maka dia akan menambahkan note,
-    // namun jika tdk null maka dia akan mengupdate note
-    if (_note.id == null) {
-      await notesProvider.addNote(_note);
-    } else {
-      await notesProvider.updateNotes(_note);
+
+    try {
+      // Jika id notenya null maka dia akan menambahkan note,
+      // namun jika tdk null maka dia akan mengupdate note
+      if (_note.id == null) {
+        await notesProvider.addNote(_note);
+      } else {
+        await notesProvider.updateNotes(_note);
+      }
+    } catch(e) {
+      
     }
     Navigator.of(context).pop();
   }
