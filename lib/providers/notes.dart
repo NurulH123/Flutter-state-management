@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/widgets.dart';
 import 'package:state_management/api/note_api.dart';
 import 'package:state_management/models/notes.dart';
@@ -38,7 +40,15 @@ class Notes with ChangeNotifier {
   ];
 
   Future<void> getAndSetNotes() async {
-    _notes = await NoteApi().getAllNote();
+    try {
+      _notes = await NoteApi().getAllNote();
+    } on SocketException catch(e) {
+      notifyListeners();
+      return Future.error('erornya adalah : $e');
+    } catch (e) {
+      // Jika tidak ada internet, maka pesan ini akan ditampilkan.
+      return Future.error('erornya adalah : $e');
+    }
     notifyListeners();
   }
 
@@ -63,10 +73,19 @@ class Notes with ChangeNotifier {
   }
 
   Future<void> addNote(Note note) async {
-    String id = await NoteApi().postNote(note);
-    note = note.copyWith(id: id);
-    _notes.add(note);
-    notifyListeners();
+    try {
+
+      String id = await NoteApi().postNote(note);
+      note = note.copyWith(id: id);
+      _notes.add(note);
+      notifyListeners();
+      
+    } on SocketException catch(e) {
+      notifyListeners();
+      return Future.error('erornya adalah : $e');
+    } catch(e) {
+      return Future.error(e);
+    }
   }
 
   Note getNote(String id) {

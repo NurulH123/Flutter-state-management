@@ -19,30 +19,32 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
-  void _submitNote() {
+  void _submitNote() async {
     _formKey.currentState.save();
     final now = DateTime.now();
     _note = _note.copyWith(updatedAt: now, createdAt: now);
     final notesProvider = Provider.of<Notes>(context, listen: false);
-
+    setState(() {
+      _isLoading = true;
+    });
     // Jika id notenya null maka dia akan menambahkan note,
     // namun jika tdk null maka dia akan mengupdate note
     if (_note.id == null) {
-      notesProvider.addNote(_note);
+      await notesProvider.addNote(_note);
     } else {
-      notesProvider.updateNotes(_note);
+      await notesProvider.updateNotes(_note);
     }
     Navigator.of(context).pop();
   }
 
   @override
   void didChangeDependencies() {
-    if (init) {
+    if (_init) {
       String id = ModalRoute.of(context).settings.arguments as String;
       if (id != null) {
         _note = Provider.of<Notes>(context).getNote(id);
       }
-      init = false;
+      _init = false;
     }
     super.didChangeDependencies();
   }
@@ -64,7 +66,12 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
         actions: [
           TextButton(
             onPressed: _submitNote,
-            child: Text('Simpan'),
+            child: _isLoading
+                ? CircularProgressIndicator()
+                : Text('Simpan',
+                    style: TextStyle(
+                      color: Colors.white,
+                    )),
           ),
         ],
       ),

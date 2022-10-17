@@ -1,28 +1,38 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:state_management/models/notes.dart';
 
 class NoteApi {
-  // https://notes-a7434-default-rtdb.asia-southeast1.firebasedatabase.app/notes.json
-
   Future<List<Note>> getAllNote() async {
     final uri = Uri.parse(
         'https://notes-a7434-default-rtdb.asia-southeast1.firebasedatabase.app/notes.json');
-    final response = await http.get(uri);
-
-    final results = json.decode(response.body) as Map<String, dynamic>;
     List<Note> notes = [];
 
-    results.forEach((key, value) {
-      notes.add(Note(
-          id: key,
-          title: value['title'],
-          note: value['note'],
-          isPinned: value['isPinned'],
-          updatedAt: DateTime.parse(value['updated_at']),
-          createdAt: DateTime.parse(value['created_at'])));
-    });
+    try {
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final results = json.decode(response.body) as Map<String, dynamic>;
+
+        results.forEach((key, value) {
+          notes.add(Note(
+              id: key,
+              title: value['title'],
+              note: value['note'],
+              isPinned: value['isPinned'],
+              updatedAt: DateTime.parse(value['updad_at']),
+              createdAt: DateTime.parse(value['created_at'])));
+        });
+      } else {
+        throw Exception();
+      }
+    } on SocketException {
+      throw SocketException('Eror, tidak ada jaringan internet');
+    } catch (e) {
+      throw Exception('Eror, terjadi kesalahan');// Ini akan menangkap pesan eror yg dilemparkan jika statusCode nya tidak sama dg 200
+    }
 
     return notes;
   }
@@ -39,20 +49,31 @@ class NoteApi {
       'created_at': note.createdAt.toIso8601String(),
     };
 
-    final body = json.encode(map);
-    final results = await http.post(uri, body: body);
+    try{
+      final body = json.encode(map);
+      final results = await http.post(uri, body: body);
 
-    return json.decode(results.body)['name'];
+      if (results.statusCode == 200) {
+        return json.decode(results.body)['name'];
+      } else {
+        throw Exception();
+      }
+
+    } on SocketException {
+      throw SocketException('Eror, tidak ada jaringan internet');
+    } catch(e) {
+      throw Exception('Eror, terjadi kesalahan'); // Ini akan menangkap pesan eror yg dilemparkan jika statusCode nya tidak sama dg 200
+    }
   }
 
-  void updateNote(Note newNote) async {
+  void updateNote(Note note) async {
     final uri = Uri.parse(
-        'https://notes-a7434-default-rtdb.asia-southeast1.firebasedatabase.app/notes/${newNote.id}.json');
+        'https://notes-a7434-default-rtdb.asia-southeast1.firebasedatabase.app/notes/${note.id}.json');
 
     Map<String, dynamic> map = {
-      'title': newNote.title,
-      'note': newNote.note,
-      'updated_at': newNote.updatedAt.toIso8601String(),
+      'title': note.title,
+      'note': note.note,
+      'updated_at': note.updatedAt.toIso8601String(),
     };
 
     final body = json.encode(map);
