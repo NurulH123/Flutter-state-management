@@ -37,7 +37,23 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
         await notesProvider.updateNotes(_note);
       }
     } catch(e) {
-      
+      await showDialog(
+        context: context, 
+        builder: (builder) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                }, 
+                child: Text('Tutup'),
+              )
+            ],
+          );
+        }
+      );
     }
     Navigator.of(context).pop();
   }

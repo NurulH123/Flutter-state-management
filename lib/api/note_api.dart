@@ -13,6 +13,9 @@ class NoteApi {
     try {
       final response = await http.get(uri);
 
+      print(response.statusCode);
+      print('URI : $uri');
+      print('response : ${json.decode(response.body)}');
       if (response.statusCode == 200) {
         final results = json.decode(response.body) as Map<String, dynamic>;
 
@@ -22,7 +25,7 @@ class NoteApi {
               title: value['title'],
               note: value['note'],
               isPinned: value['isPinned'],
-              updatedAt: DateTime.parse(value['updad_at']),
+              updatedAt: DateTime.parse(value['updated_at']),
               createdAt: DateTime.parse(value['created_at'])));
         });
       } else {
@@ -31,7 +34,8 @@ class NoteApi {
     } on SocketException {
       throw SocketException('Eror, tidak ada jaringan internet');
     } catch (e) {
-      throw Exception('Eror, terjadi kesalahan');// Ini akan menangkap pesan eror yg dilemparkan jika statusCode nya tidak sama dg 200
+      throw Exception(
+          'Eror, terjadi kesalahan'); // Ini akan menangkap pesan eror yg dilemparkan jika statusCode nya tidak sama dg 200
     }
 
     return notes;
@@ -49,7 +53,7 @@ class NoteApi {
       'created_at': note.createdAt.toIso8601String(),
     };
 
-    try{
+    try {
       final body = json.encode(map);
       final results = await http.post(uri, body: body);
 
@@ -58,11 +62,11 @@ class NoteApi {
       } else {
         throw Exception();
       }
-
     } on SocketException {
       throw SocketException('Eror, tidak ada jaringan internet');
-    } catch(e) {
-      throw Exception('Eror, terjadi kesalahan'); // Ini akan menangkap pesan eror yg dilemparkan jika statusCode nya tidak sama dg 200
+    } catch (e) {
+      throw Exception(
+          'Eror, terjadi kesalahan'); // Ini akan menangkap pesan eror yg dilemparkan jika statusCode nya tidak sama dg 200
     }
   }
 

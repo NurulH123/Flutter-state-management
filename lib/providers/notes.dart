@@ -42,7 +42,7 @@ class Notes with ChangeNotifier {
   Future<void> getAndSetNotes() async {
     try {
       _notes = await NoteApi().getAllNote();
-    } on SocketException catch(e) {
+    } on SocketException catch (e) {
       notifyListeners();
       return Future.error('erornya adalah : $e');
     } catch (e) {
@@ -74,16 +74,14 @@ class Notes with ChangeNotifier {
 
   Future<void> addNote(Note note) async {
     try {
-
       String id = await NoteApi().postNote(note);
       note = note.copyWith(id: id);
       _notes.add(note);
       notifyListeners();
-      
-    } on SocketException catch(e) {
+    } on SocketException catch (e) {
       notifyListeners();
       return Future.error('erornya adalah : $e');
-    } catch(e) {
+    } catch (e) {
       return Future.error(e);
     }
   }
