@@ -36,24 +36,23 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
       } else {
         await notesProvider.updateNotes(_note);
       }
-    } catch(e) {
+    } catch (e) {
       await showDialog(
-        context: context, 
-        builder: (builder) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text(e.toString()),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                }, 
-                child: Text('Tutup'),
-              )
-            ],
-          );
-        }
-      );
+          context: context,
+          builder: (builder) {
+            return AlertDialog(
+              title: Text('Error'),
+              content: Text(e.toString()),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Tutup'),
+                )
+              ],
+            );
+          });
     }
     Navigator.of(context).pop();
   }

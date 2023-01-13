@@ -7,15 +7,12 @@ import 'package:state_management/models/notes.dart';
 class NoteApi {
   Future<List<Note>> getAllNote() async {
     final uri = Uri.parse(
-        'https://notes-a7434-default-rtdb.asia-southeast1.firebasedatabase.app/notes.json');
+        'https://notes-reply-default-rtdb.asia-southeast1.firebasedatabase.app/notes.json');
     List<Note> notes = [];
 
     try {
       final response = await http.get(uri);
 
-      print(response.statusCode);
-      print('URI : $uri');
-      print('response : ${json.decode(response.body)}');
       if (response.statusCode == 200) {
         final results = json.decode(response.body) as Map<String, dynamic>;
 
@@ -35,7 +32,7 @@ class NoteApi {
       throw SocketException('Eror, tidak ada jaringan internet');
     } catch (e) {
       throw Exception(
-          'Eror, terjadi kesalahan'); // Ini akan menangkap pesan eror yg dilemparkan jika statusCode nya tidak sama dg 200
+          'Eror, terjadi kesalahan $e'); // Ini akan menangkap pesan eror yg dilemparkan jika statusCode nya tidak sama dg 200
     }
 
     return notes;
@@ -43,7 +40,7 @@ class NoteApi {
 
   Future<String> postNote(Note note) async {
     final uri = Uri.parse(
-        'https://notes-a7434-default-rtdb.asia-southeast1.firebasedatabase.app/notes.json');
+        'https://notes-reply-default-rtdb.asia-southeast1.firebasedatabase.app/notes.json');
 
     Map<String, dynamic> map = {
       'title': note.title,
@@ -72,22 +69,29 @@ class NoteApi {
 
   void updateNote(Note note) async {
     final uri = Uri.parse(
-        'https://notes-a7434-default-rtdb.asia-southeast1.firebasedatabase.app/notes/${note.id}.json');
-
+        'https://notes-reply-default-rtdb.asia-southeast1.firebasedatabase.app/notes/${note.id}.json');
     Map<String, dynamic> map = {
       'title': note.title,
       'note': note.note,
       'updated_at': note.updatedAt.toIso8601String(),
     };
 
-    final body = json.encode(map);
-    final results = await http.patch(uri, body: body);
+    try{
+      final body = json.encode(map);
+      final response = await http.patch(uri, body: body);
+
+      if (response.statusCode != 200) throw Exception();
+    } on SocketException {
+      throw SocketException('Tidak dapat tersambung ke internet');
+    }
+    catch($e) {
+      throw Exception('Error, terjadi kesalahan');
+    }
   }
 
-  Future<void> toggleIsPinned(
-      String id, bool isPinned, DateTime updatedAt) async {
+  Future<void> toggleIsPinned(String id, bool isPinned, DateTime updatedAt) async {
     final uri = Uri.parse(
-        'https://notes-a7434-default-rtdb.asia-southeast1.firebasedatabase.app/notes/$id.json');
+        'https://notes-reply-default-rtdb.asia-southeast1.firebasedatabase.app/notes/$id.json');
 
     Map<String, dynamic> map = {
       'isPinned': isPinned,
@@ -100,7 +104,7 @@ class NoteApi {
 
   void deleteNote(String id) {
     final uri = Uri.parse(
-        'https://notes-a7434-default-rtdb.asia-southeast1.firebasedatabase.app/notes/$id.json');
+        'https://notes-reply-default-rtdb.asia-southeast1.firebasedatabase.app/notes/$id.json');
 
     final results = http.delete(uri);
   }

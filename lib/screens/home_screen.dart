@@ -17,20 +17,25 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text('Notes'),
       ),
-      body: FutureBuilder(
-        future: Provider.of<Notes>(context, listen: false).getAndSetNotes(),
-        builder: (ctx, notesSnapshot) {
-          if (notesSnapshot.connectionState == ConnectionState.waiting)
-            return Center(
-              child: CircularProgressIndicator(),
-            );
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: FutureBuilder(
+          future: Provider.of<Notes>(context, listen: false).getAndSetNotes(),
+          builder: (ctx, notesSnapshot) {
+            if (notesSnapshot.connectionState == ConnectionState.waiting)
+              return Center(
+                child: CircularProgressIndicator(),
+              );
 
-          if (notesSnapshot.hasError){
-            return Center(child: Text(notesSnapshot.error.toString()),);
-          }
+            if (notesSnapshot.hasError) {
+              return Center(
+                child: Text(notesSnapshot.error.toString()),
+              );
+            }
 
-          return NotesGrid();
-        },
+            return NotesGrid();
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
