@@ -90,11 +90,15 @@ class Notes with ChangeNotifier {
     return _notes.firstWhere((note) => note.id == id);
   }
 
-  void updateNotes(Note newNote) async {
-    await NoteApi().updateNote(newNote);
-    int index = _notes.indexWhere((note) => note.id == newNote.id);
-    _notes[index] = newNote;
-    notifyListeners();
+  Future<void> updateNotes(Note newNote) async {
+    try {
+      await NoteApi().updateNote(newNote);
+      int index = _notes.indexWhere((note) => note.id == newNote.id);
+      _notes[index] = newNote;
+      notifyListeners();
+    } catch (e) {
+      throw Future.error(e);
+    }
   }
 
   void deleteNote(String id) {
