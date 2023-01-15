@@ -24,8 +24,13 @@ class _NoteItemState extends State<NoteItem> {
 
     return Dismissible(
       key: Key(note.id),
-      onDismissed: (direction) {
-        notesProvider.deleteNote(note.id);
+      onDismissed: (direction) async {
+        try {
+          await notesProvider.deleteNote(note.id);
+        } catch (e) {
+          print('Terjadi kesalahan');
+          // throw Exception(e);
+        }
       },
       child: GestureDetector(
         onTap: () => {

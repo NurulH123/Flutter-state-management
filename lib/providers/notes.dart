@@ -97,13 +97,19 @@ class Notes with ChangeNotifier {
       _notes[index] = newNote;
       notifyListeners();
     } catch (e) {
-      throw Future.error(e);
+      throw Exception('Terjadi kesalahan');
     }
   }
 
-  void deleteNote(String id) {
-    NoteApi().deleteNote(id);
-    _notes.removeWhere((note) => note.id == id);
-    notifyListeners();
+  Future<void> deleteNote(String id) async {
+    int index = _notes.indexWhere((note) => note.id == id);
+    Note tempNote = _notes[index];
+    try {
+      _notes.removeAt(index);
+      notifyListeners();
+      await NoteApi().deleteNote(id);
+    } catch (e) {
+      _notes.insert(index, tempNote);
+    }
   }
 }

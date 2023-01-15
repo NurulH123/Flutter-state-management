@@ -98,14 +98,30 @@ class NoteApi {
       'updated_at': updatedAt.toIso8601String(),
     };
 
-    final body = json.encode(map);
-    final results = await http.patch(uri, body: body);
+    try {
+      final body = json.encode(map);
+      final results = await http.patch(uri, body: body);
+
+      if (results.statusCode != 200) throw Exception();
+    } on SocketException {
+      throw SocketException('Tidak dapat tersambung ke internet');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan');
+    }
   }
 
-  void deleteNote(String id) {
+  Future<void> deleteNote(String id) async {
     final uri = Uri.parse(
         'https://notes-reply-default-rtdb.asia-southeast1.firebasedatabase.app/notes/$id.json');
 
-    final results = http.delete(uri);
+    try {
+      final results = await http.delete(uri);
+
+      if (results.statusCode != 200) throw Exception();
+    } on SocketException{
+      throw SocketException('Tidak dapat tersambung ke internet');
+    } catch (e) {
+      throw Exception('Error, terjadi kesalahan');
+    }
   }
 }
