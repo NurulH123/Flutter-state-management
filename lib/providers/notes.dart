@@ -43,10 +43,10 @@ class Notes with ChangeNotifier {
     try {
       _notes = await NoteApi().getAllNote();
     } on SocketException catch (e) {
-      notifyListeners();
-      return Future.error('erornya adalah : $e');
-    } catch (e) {
       // Jika tidak ada internet, maka pesan ini akan ditampilkan.
+      notifyListeners();
+      return Future.error(e);
+    } catch (e) {
       return Future.error('erornya adalah : $e');
     }
     notifyListeners();
@@ -54,22 +54,31 @@ class Notes with ChangeNotifier {
 
   List<Note> get notes {
     NoteApi().getAllNote();
+
     List<Note> tempListNote = _notes.where((note) => note.isPinned).toList();
     tempListNote.addAll(_notes.where((note) => !note.isPinned).toList());
 
     return tempListNote;
   }
 
-  void toggleIsPinned(String id) {
+  Future<void> toggleIsPinned(String id) async {
     int index = _notes.indexWhere((note) => note.id == id);
 
-    if (index >= 0) {
+    try {
+      if (index >= 0) {
+          _notes[index].isPinned = !_notes[index].isPinned;
+          _notes[index].copyWith(updatedAt: DateTime.now());
+          notifyListeners();
+
+          await NoteApi()
+              .toggleIsPinned(id, _notes[index].isPinned, _notes[index].updatedAt);
+        }
+    } catch (e) {
       _notes[index].isPinned = !_notes[index].isPinned;
-      _notes[index].copyWith(updatedAt: DateTime.now());
-      NoteApi()
-          .toggleIsPinned(id, _notes[index].isPinned, _notes[index].updatedAt);
       notifyListeners();
+      return Future.error('Terjadi kesalahan');
     }
+    
   }
 
   Future<void> addNote(Note note) async {
@@ -110,6 +119,8 @@ class Notes with ChangeNotifier {
       await NoteApi().deleteNote(id);
     } catch (e) {
       _notes.insert(index, tempNote);
+      notifyListeners();
+      return Future.error('Tidak ada sambungan internet');
     }
   }
 }

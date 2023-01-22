@@ -29,10 +29,10 @@ class NoteApi {
         throw Exception();
       }
     } on SocketException {
-      throw SocketException('Eror, tidak ada jaringan internet');
+      throw SocketException('Error, tidak ada jaringan internet');
     } catch (e) {
       throw Exception(
-          'Eror, terjadi kesalahan $e'); // Ini akan menangkap pesan eror yg dilemparkan jika statusCode nya tidak sama dg 200
+          'Error, terjadi kesalahan $e'); // Ini akan menangkap pesan eror yg dilemparkan jika statusCode nya tidak sama dg 200
     }
 
     return notes;
@@ -60,10 +60,10 @@ class NoteApi {
         throw Exception();
       }
     } on SocketException {
-      throw SocketException('Eror, tidak ada jaringan internet');
+      throw SocketException('Error, tidak ada jaringan internet');
     } catch (e) {
       throw Exception(
-          'Eror, terjadi kesalahan'); // Ini akan menangkap pesan eror yg dilemparkan jika statusCode nya tidak sama dg 200
+          'Error, terjadi kesalahan'); // Ini akan menangkap pesan eror yg dilemparkan jika statusCode nya tidak sama dg 200
     }
   }
 
@@ -76,20 +76,20 @@ class NoteApi {
       'updated_at': note.updatedAt.toIso8601String(),
     };
 
-    try{
+    try {
       final body = json.encode(map);
       final response = await http.patch(uri, body: body);
 
       if (response.statusCode != 200) throw Exception();
     } on SocketException {
       throw SocketException('Tidak dapat tersambung ke internet');
-    }
-    catch($e) {
+    } catch ($e) {
       throw Exception('Error, terjadi kesalahan');
     }
   }
 
-  Future<void> toggleIsPinned(String id, bool isPinned, DateTime updatedAt) async {
+  Future<void> toggleIsPinned(
+      String id, bool isPinned, DateTime updatedAt) async {
     final uri = Uri.parse(
         'https://notes-reply-default-rtdb.asia-southeast1.firebasedatabase.app/notes/$id.json');
 
@@ -118,7 +118,7 @@ class NoteApi {
       final results = await http.delete(uri);
 
       if (results.statusCode != 200) throw Exception();
-    } on SocketException{
+    } on SocketException {
       throw SocketException('Tidak dapat tersambung ke internet');
     } catch (e) {
       throw Exception('Error, terjadi kesalahan');

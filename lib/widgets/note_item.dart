@@ -7,9 +7,11 @@ import '../providers/notes.dart';
 
 class NoteItem extends StatefulWidget {
   final String id;
+  final BuildContext ctx;
 
   NoteItem({
     @required this.id,
+    @required this.ctx,
   });
 
   @override
@@ -24,13 +26,12 @@ class _NoteItemState extends State<NoteItem> {
 
     return Dismissible(
       key: Key(note.id),
-      onDismissed: (direction) async {
-        try {
-          await notesProvider.deleteNote(note.id);
-        } catch (e) {
-          print('Terjadi kesalahan');
-          // throw Exception(e);
-        }
+      onDismissed: (direction) {
+        ScaffoldMessenger.of(widget.ctx).clearSnackBars();
+        notesProvider.deleteNote(note.id).catchError((onError) {
+          ScaffoldMessenger.of(widget.ctx)
+              .showSnackBar(SnackBar(content: Text(onError.toString())));
+        });
       },
       child: GestureDetector(
         onTap: () => {
@@ -44,7 +45,11 @@ class _NoteItemState extends State<NoteItem> {
             alignment: Alignment.topRight,
             child: IconButton(
               onPressed: () {
-                notesProvider.toggleIsPinned(note.id);
+                ScaffoldMessenger.of(widget.ctx).clearSnackBars();
+                notesProvider.toggleIsPinned(note.id).catchError((onError) {
+                  ScaffoldMessenger.of(widget.ctx).showSnackBar(
+                      SnackBar(content: Text(onError.toString())));
+                });
               },
               icon: Icon(
                 note.isPinned ? CustomIcons.pin : CustomIcons.pin_outline,
